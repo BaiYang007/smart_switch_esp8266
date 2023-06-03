@@ -1,0 +1,1 @@
+48ba65f-dirty smartconfig_mqtt 48ba65f-dirty
