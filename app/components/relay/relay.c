@@ -41,9 +41,11 @@
 #define SET_RELAY2_LEVEL(a)        gpio_set_level(GPIO_OUTPUT_IO_13,a);
 
 static const char *TAG = "relay Log";
+
 //relay配置参数
 EEPROMPARAMETER_ST  EepromParameter_st;
 EEPROMPARAMETER_ST  TempEepromParameter_st;
+
 //relay io口定义
 #define GPIO_OUTPUT_IO_12    12
 #define GPIO_OUTPUT_PIN12_SEL  (1ULL<<GPIO_OUTPUT_IO_12)
@@ -113,13 +115,13 @@ static void eeprom_parameter_init(void)
 
         if (nvs_get_blob(out_handle, "EepromParameter", &EepromParameter_st, &size) == ESP_OK)
         {
-        	ESP_LOGI(TAG, "read relayParameter success");
+        	ESP_LOGI(TAG, "read EepromParameter success");
         }
         else if (nvs_set_blob(out_handle, "EepromParameter", &EepromParameter_st, size) == ESP_OK)
         {
-        	ESP_LOGI(TAG, "create relayParameter success");
+        	ESP_LOGI(TAG, "create EepromParameter success");
         }
-        else ESP_LOGI(TAG, "read relayParameter error");
+        else ESP_LOGI(TAG, "read EepromParameter error");
 
         nvs_close(out_handle);
     }
@@ -134,8 +136,7 @@ static void eeprom_parameter_init(void)
 */
 static void relay_dispatch(void)
 {
-	static uint8_t lastRelayState,lastAlarmClock=0xff,AlarmClockRunFlag = 0;
-	uint8_t alarmColck,redoRelayStateFlag = 0;
+	static uint8_t lastRelaySwitchMask;
 
 	//网络时间同步完成
 	if (SNTP_DONE_BIT & xEventGroupWaitBits(system_event_group,SNTP_DONE_BIT,pdTRUE,pdFALSE,0))
@@ -143,14 +144,13 @@ static void relay_dispatch(void)
 
 	}
 
-	if (lastRelayState != EepromParameter_st.RelaySwitchMask)
+	if (lastRelaySwitchMask != EepromParameter_st.RelaySwitchMask)
 	{
-		lastRelayState = EepromParameter_st.RelaySwitchMask;
+		lastRelaySwitchMask = EepromParameter_st.RelaySwitchMask;
 		xEventGroupSetBits(system_event_group,REFRESH_RELAY_IO_BIT);
 	}
 
-
-////////////////////////////////数据保存/////////////////////////////////////////////////////////////////
+	//数据保存
 	if (GetTimer(SaveTimer) == 1)
 	{
 		SetTimer(SaveTimer,0);

@@ -150,7 +150,7 @@ void key_task(void *pvParameters)
     	{
     		toggle_relay();
     		post_data_to_clouds();
-    		SetTimer(SaveTimer, 1000);
+    		SetTimer(SaveTimer, 200);
     		ESP_LOGI(TAG, "Key Type: %s", "keyShort");
     	}
     	if (keyLong == BOOT_KEY)

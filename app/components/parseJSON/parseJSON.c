@@ -130,7 +130,7 @@ void Task_ParseJSON(void *pvParameters)
 					EepromParameter_st.RelaySwitchMask = pJSON_Item->valueint;
 				}
 				else goto __cJSON_Delete;
-				SetTimer(SaveTimer, 1000);
+				SetTimer(SaveTimer, 200);
 				break;
 
 			default: goto __cJSON_Delete;
